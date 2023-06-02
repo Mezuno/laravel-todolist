@@ -13,4 +13,14 @@ class TodoList extends Model
 
     protected $table = 'todo_lists';
     protected $guarded = false;
+
+    public function item()
+    {
+        return $this->hasMany(ListItem::class);
+    }
+
+    public function checkedItem()
+    {
+        return $this->hasMany(ListItem::class)->where('checked', '=', true);
+    }
 }

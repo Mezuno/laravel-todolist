@@ -21,6 +21,9 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             TodoListSeeder::class,
+            ListItemsSeeder::class,
+            TagSeeder::class,
+            ListItemTagSeeder::class,
         ]);
     }
 }

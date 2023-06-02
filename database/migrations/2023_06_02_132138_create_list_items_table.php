@@ -18,7 +18,7 @@ return new class extends Migration
             $table->boolean('checked')->nullable();
             $table->string('preview_image')->nullable();
 
-            $table->foreignId('list_id')
+            $table->foreignId('todo_list_id')
                 ->index()
                 ->constrained('todo_lists');
 

@@ -13,4 +13,9 @@ class ListItem extends Model
 
     protected $table = 'list_items';
     protected $guarded = false;
+
+    public function tags(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class);
+    }
 }

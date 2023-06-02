@@ -2,12 +2,12 @@
 
 namespace Database\Seeders;
 
-use App\Models\TodoList;
-use App\Models\User;
+use App\Models\ListItem;
+use App\Models\ListItemTag;
+use App\Models\Tag;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
-class TodoListSeeder extends Seeder
+class ListItemTagSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -17,18 +17,17 @@ class TodoListSeeder extends Seeder
     public function run()
     {
         $data = [];
-        $recordCount = 160;
+        $recordCount = 1280;
 
         for ($i = 0; $i < $recordCount; $i++) {
             $data[] = [
-                'title' => Str::title(fake()->word()),
-                'description' => fake()->text(70),
-                'owner_id' => User::get('id')->random()->id,
+                'tag_id' => Tag::get('id')->random()->id,
+                'list_item_id' => ListItem::get('id')->random()->id,
             ];
         }
 
         foreach (array_chunk($data, 1000) as $chunk) {
-            TodoList::insert($chunk);
+            ListItemTag::insert($chunk);
         }
     }
 }
