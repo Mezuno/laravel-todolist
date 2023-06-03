@@ -10,6 +10,18 @@
                     Назад
                 </a>
 
+                <div class="d-flex mb-5">
+                    @if(app('request')->input('search'))
+                    <form action="{{ route('list.show', ['list' => $list]) }}">
+                        <button class="btn btn-outline-secondary"><i class="fas fa-times"></i></button>
+                    </form>
+                    @endif
+                    <form action="{{ route('list.show', ['list' => $list]) }}" class="d-flex w-100">
+                        <input type="text" class="form-control border border-dark" name="search" value="{{ app('request')->input('search') }}" placeholder="Поиск по тегам">
+                        <button class="btn btn-outline-dark"><i class="fas fa-search"></i></button>
+                    </form>
+                </div>
+
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h1 class="fw-bold mt-2">{{ $list->title }}</h1>
                     <div class="dropdown cursor-pointer">
@@ -82,8 +94,8 @@
                                                 @endif
 
                                                 <div class="form-group mt-2">
-                                                    <select name="tags[]" class="tags" id="tagsItem{{ $item->id }}" multiple="multiple" data-placeholder="Добавить тег" style="height: 500px; width: 100%;">
-                                                        @foreach($tags as $tag)
+                                                    <select name="tags[]" class="tags" id="tagsItem{{ $item->id }}" multiple="multiple" data-placeholder="Добавить тег" style="height: 300px; width: 100%;">
+                                                        @forelse($tags as $tag)
                                                             @foreach($item->tags as $itemTag)
                                                                 @if($itemTag->id == $tag->id)
                                                                     {{ $selected = 'selected' }}
@@ -94,7 +106,9 @@
                                                             @endforeach
                                                             <option {{ $selected ?? '' }} value="{{ $tag->id }}">{{ $tag->title }}</option>
                                                             {{ $selected = '' }}
-                                                        @endforeach
+                                                        @empty
+                                                            <option disabled>У вас нету тегов. Чтобы добавить тег, зайдите в раздел "теги"</option>
+                                                        @endforelse
                                                     </select>
                                                 </div>
 
@@ -114,7 +128,7 @@
 
                         @endforeach
 
-                        <div class="p-1 border-secondary border mt-2 p-2 rounded-3 d-flex flex-column" id="newItem">
+                        <div class="p-1 border-opacity-25 border-secondary border mt-2 p-2 rounded-3 d-flex flex-column" id="newItem">
                             <form action="{{ route('item.store') }}" method="post">
                                 @csrf
                                 @method('post')

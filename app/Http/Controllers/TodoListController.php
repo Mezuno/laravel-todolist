@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreItemRequest;
+use App\Http\Filters\ListItemFilter;
+use App\Http\Requests\StoreTodoListRequest;
 use App\Http\Requests\UpdateTodoListRequest;
 use App\Models\ListItem;
 use App\Models\Tag;
@@ -11,60 +12,6 @@ use Illuminate\Http\Request;
 
 class TodoListController extends Controller
 {
-    public function check(Request $request)
-    {
-        $id = $request->input('id');
-
-        $result = ListItem::where('id', $id)->update(['checked' => true]);
-
-        return $result;
-    }
-
-    public function uncheck(Request $request)
-    {
-        $id = $request->input('id');
-
-        $result = ListItem::where('id', $id)->update(['checked' => false]);
-
-        return $result;
-    }
-
-    public function updateItem(Request $request)
-    {
-        $id = $request->input('id');
-        $title = $request->input('title');
-        $description = $request->input('description');
-        $tags = $request->input('tags');
-
-        $result = ListItem::where('id', $id)->update(['title' => $title, 'description' => $description]);
-
-        $list = ListItem::where('id', $id)->get()->first();
-
-        $list->tags()->sync($tags ?? []);
-
-        return $result;
-    }
-
-    public function storeItem(StoreItemRequest $request)
-    {
-        $title = $request->input('title');
-        $description = $request->input('description');
-        $listId = $request->input('todo_list_id');
-
-        $result = ListItem::create(['title' => $title, 'description' => $description, 'todo_list_id' => $listId]);
-
-        return redirect()->route('list.show', ['listId' => $listId]);
-    }
-
-    public function deleteItem(Request $request)
-    {
-        $id = $request->input('id');
-
-        $result = ListItem::where('id', $id)->delete();
-
-        return $result;
-    }
-
     public function index()
     {
         $lists = TodoList::where('owner_id', auth()->user()->id)
@@ -74,21 +21,42 @@ class TodoListController extends Controller
         return view('todolist.index', compact('lists'));
     }
 
-    public function show(TodoList $list)
+    public function show(Request $request, TodoList $list)
     {
+//        $validated['tags'] = ['title' => $request->input('search')];
+//        $filter = app()->make(ListItemFilter::class, ['queryParams' => array_filter($validated ?? [])]);
         $tags = Tag::where('owner_id', auth()->user()->id)->get();
-        $listItems = ListItem::where('todo_list_id', $list->id)->with('tags')->get();
+//        $listItems = ListItem::where('todo_list_id', $list->id)->with('tags')->get();
+
+
+        $query = ListItem::query();
+
+        if ($request->input('search')) {
+            $search = '%'. $request->input('search') . '%';
+            $query->whereHas('tags', function ($query) use ($search) {
+                $query->where('title', 'like', $search);
+            });
+        }
+
+        $listItems = $query->where('todo_list_id', $list->id)->with('tags')->get();
+
         return view('todolist.show', compact('list', 'listItems', 'tags'));
     }
 
     public function create()
     {
-
+        return view('todolist.create');
     }
 
-    public function store()
+    public function store(StoreTodoListRequest $request)
     {
+        $validated = $request->validated();
 
+        $validated['owner_id'] = auth()->user()->id;
+
+        $list = TodoList::create($validated);
+
+        return redirect()->route('list.show', ['list' => $list]);
     }
 
     public function edit(TodoList $list)

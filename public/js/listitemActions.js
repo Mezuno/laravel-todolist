@@ -16,6 +16,7 @@ function editItem(id) {
     let tags = document.getElementById('tagsItem'+id)
 
     let tagsToSave = [];
+    let tagsTitles = '';
     let tagsOptions = tags && tags.options;
     let option;
 
@@ -24,12 +25,14 @@ function editItem(id) {
 
         if (option.selected) {
             tagsToSave.push(option.value || option.text);
+            tagsTitles += '<span class="alert alert-warning px-2 py-0 me-1">' + option.text + '</span>'
         }
     }
 
     axios.post('/api/item/update', {'id': id, 'title': title, 'description': description, 'tags': tagsToSave})
         .then((response) => {
             titleNode.innerText = title
+            titleNode.innerHTML += tagsTitles
             descriptionNode.innerText = description
             console.log(response);
         })
