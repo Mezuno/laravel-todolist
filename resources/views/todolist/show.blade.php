@@ -10,14 +10,29 @@
                     Назад
                 </a>
 
-                <div class="d-flex mb-5">
+                <div class="mb-2">
+                    <h5>Фильтр по тегам</h5>
+                    @foreach($tags as $tag)
+                        <form action="{{ route('list.show', ['list' => $list]) }}" class="d-inline-block">
+                            <input type="text" value="{{ $tag->id }}" name="tag" hidden>
+                            <button class="alert p-0 px-1 me-2 @if($tag->id == app('request')->input('tag')) alert-danger @else alert-warning @endif">{{ $tag->title }}</button>
+                        </form>
+                    @endforeach
+                    @if(app('request')->input('tag'))
+                        <form action="{{ route('list.show', ['list' => $list]) }}" class="d-inline-block">
+                            <button class="alert alert-secondary p-0 px-1"><i class="fas fa-times"></i></button>
+                        </form>
+                    @endif
+                </div>
+
+                <div class="d-flex mb-3">
                     @if(app('request')->input('search'))
-                    <form action="{{ route('list.show', ['list' => $list]) }}">
-                        <button class="btn btn-outline-secondary"><i class="fas fa-times"></i></button>
-                    </form>
+                        <form action="{{ route('list.show', ['list' => $list]) }}">
+                            <button class="btn btn-outline-secondary"><i class="fas fa-times"></i></button>
+                        </form>
                     @endif
                     <form action="{{ route('list.show', ['list' => $list]) }}" class="d-flex w-100">
-                        <input type="text" class="form-control border border-dark" name="search" value="{{ app('request')->input('search') }}" placeholder="Поиск по тегам">
+                        <input type="text" class="form-control border border-dark" name="search" value="{{ app('request')->input('search') }}" placeholder="Поиск">
                         <button class="btn btn-outline-dark"><i class="fas fa-search"></i></button>
                     </form>
                 </div>
@@ -52,15 +67,26 @@
                         @foreach($listItems as $item)
                             <div class="p-1 border-secondary border my-2 rounded-3 d-flex
                             justify-content-between align-items-center hoverDiv" id="item{{ $item->id }}">
-                                <div class="mx-2">
-                                    <p class="m-0 p-0" id="titleItem{{ $item->id }}">{{ $item->title }}
-                                        @foreach($item->tags as $tag)
-                                            <span class="alert alert-warning px-2 py-0 me-1">{{ $tag->title }}</span>
-                                        @endforeach</p>
-                                    <p class="text-secondary m-0 p-0" id="descriptionItem{{ $item->id }}">{{ $item->description }}</p>
-                                    <div class="my-2">
+
+                                <div class="d-flex align-items-center">
+                                    <div class="d-inline-block ms-2" style="width: 40px; height: 40px;">
+
+                                        <a href="{{ URL::asset('/storage/' . $item->preview_image) }}" target="_blank">
+                                            <img src="{{ URL::asset('/storage/' . $item->preview_image) }}" alt="" class="w-100 h-100" id="imageItem{{ $item->id }}">
+                                        </a>
+
+                                    </div>
+                                    <div class="mx-2">
+                                        <p class="m-0 p-0" id="titleItem{{ $item->id }}">{{ $item->title }}
+                                            @foreach($item->tags as $tag)
+                                                <span class="alert alert-warning px-2 py-0 me-1">{{ $tag->title }}</span>
+                                            @endforeach</p>
+                                        <p class="text-secondary m-0 p-0" id="descriptionItem{{ $item->id }}">{{ $item->description }}</p>
+                                        <div class="my-2">
+                                        </div>
                                     </div>
                                 </div>
+
                                 <div class="mx-2">
                                     <a type="button" class="text-secondary mx-3" data-bs-toggle="modal" data-bs-target="#modalItem{{ $item->id }}">
                                         <i class="fas fa-pen"></i>
@@ -85,13 +111,14 @@
 
                                             <form action="">
                                                 <input type="text" id="titleInputItem{{ $item->id }}" class="form-control mb-2" value="{{ $item->title }}">
-                                                <input type="text" id="descriptionInputItem{{ $item->id }}" class="form-control" value="{{ $item->description }}">
+                                                <input type="text" id="descriptionInputItem{{ $item->id }}" class="form-control mb-2" value="{{ $item->description }}">
 
-                                                @if ($errors->has('tags'))
-                                                    <div class="alert alert-danger w-100">
-                                                        <ul>@foreach($errors->get('tags') as $message)<li>{{$message}}</li>@endforeach</ul>
-                                                    </div>
-                                                @endif
+                                                <p class="m-0">Изображение</p>
+                                                <form enctype="multipart/form-data" method="post" action="" class="d-flex flex-column">
+                                                    @csrf
+                                                    @method('patch')
+                                                    <input class="mb-2" type="file" name="inputImageItem{{ $item->id }}" accept=".jpg, .jpeg, .png" id="imageInput{{ $item->id }}">
+                                                </form>
 
                                                 <div class="form-group mt-2">
                                                     <select name="tags[]" class="tags" id="tagsItem{{ $item->id }}" multiple="multiple" data-placeholder="Добавить тег" style="height: 300px; width: 100%;">

@@ -23,22 +23,22 @@ class TodoListController extends Controller
 
     public function show(Request $request, TodoList $list)
     {
-//        $validated['tags'] = ['title' => $request->input('search')];
-//        $filter = app()->make(ListItemFilter::class, ['queryParams' => array_filter($validated ?? [])]);
         $tags = Tag::where('owner_id', auth()->user()->id)->get();
-//        $listItems = ListItem::where('todo_list_id', $list->id)->with('tags')->get();
 
+        $query = ListItem::query()->where('todo_list_id', $list->id)->with('tags');
 
-        $query = ListItem::query();
-
-        if ($request->input('search')) {
-            $search = '%'. $request->input('search') . '%';
-            $query->whereHas('tags', function ($query) use ($search) {
-                $query->where('title', 'like', $search);
+        if ($request->input('tag')) {
+            $tag = $request->input('tag');
+            $query->whereHas('tags', function ($query) use ($tag) {
+                $query->where('tag_id', '=', $tag);
             });
         }
+        if ($request->input('search')) {
+            $search = '%'. $request->input('search') . '%';
+            $query->where('title', 'like', $search);
+        }
 
-        $listItems = $query->where('todo_list_id', $list->id)->with('tags')->get();
+        $listItems = $query->get();
 
         return view('todolist.show', compact('list', 'listItems', 'tags'));
     }

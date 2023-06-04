@@ -20,5 +20,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::post('check', [\App\Http\Controllers\ListItemController::class, 'check']);
 Route::post('uncheck', [\App\Http\Controllers\ListItemController::class, 'uncheck']);
-Route::post('item/update', [\App\Http\Controllers\ListItemController::class, 'updateItem']);
-Route::post('item/delete', [\App\Http\Controllers\ListItemController::class, 'deleteItem']);
+Route::post('item/update', [\App\Http\Controllers\ListItemController::class, 'update']);
+Route::post('item/{itemId}/image/update', [\App\Http\Controllers\ListItemController::class, 'updateImage']);
+Route::post('item/delete', [\App\Http\Controllers\ListItemController::class, 'delete']);

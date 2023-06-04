@@ -19,11 +19,11 @@ class DatabaseSeeder extends Seeder
              'email' => 'test@example.com',
          ]);
 
-//        $this->call([
-//            TodoListSeeder::class,
-//            ListItemsSeeder::class,
-//            TagSeeder::class,
-//            ListItemTagSeeder::class,
-//        ]);
+        $this->call([
+            TodoListSeeder::class,
+            ListItemsSeeder::class,
+            TagSeeder::class,
+            ListItemTagSeeder::class,
+        ]);
     }
 }

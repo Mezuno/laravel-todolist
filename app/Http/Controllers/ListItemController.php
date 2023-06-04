@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreItemRequest;
+use App\Http\Requests\UpdateListItemImageRequest;
 use App\Models\ListItem;
 use App\Models\TodoList;
 use Illuminate\Http\Request;
+use Intervention\Image\Facades\Image;
 
 class ListItemController extends Controller
 {
@@ -29,7 +31,7 @@ class ListItemController extends Controller
         return $result;
     }
 
-    public function updateItem(Request $request)
+    public function update(Request $request)
     {
         $id = $request->input('id');
         $title = $request->input('title');
@@ -45,7 +47,7 @@ class ListItemController extends Controller
         return $result;
     }
 
-    public function storeItem(StoreItemRequest $request)
+    public function store(StoreItemRequest $request)
     {
         $title = $request->input('title');
         $description = $request->input('description');
@@ -58,12 +60,30 @@ class ListItemController extends Controller
         return redirect()->route('list.show', ['list' => $list]);
     }
 
-    public function deleteItem(Request $request)
+    public function delete(Request $request)
     {
         $id = $request->input('id');
 
         $result = ListItem::where('id', $id)->delete();
 
         return $result;
+    }
+
+    public function updateImage(UpdateListItemImageRequest $request, int $itemId)
+    {
+        $validated = $request->validated();
+
+        $filename = 'storage\\images\\list-items\\' . $itemId . '.' . $validated['image']->getClientOriginalExtension();
+        $filenameToDB = 'images/list-items/' . $itemId . '.' . $validated['image']->getClientOriginalExtension();
+
+        ini_set('memory_limit','256M');
+        $img = Image::make($validated['image']);
+        $img->save(public_path($filename));
+
+        $list = ListItem::where('id', $itemId)->get()->first();
+        $list->preview_image = $filenameToDB;
+        $list->save();
+
+        return $validated['image'];
     }
 }

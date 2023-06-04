@@ -29,12 +29,34 @@ function editItem(id) {
         }
     }
 
-    axios.post('/api/item/update', {'id': id, 'title': title, 'description': description, 'tags': tagsToSave})
+    let imageFile = document.getElementById('imageInput' + id).files[0];
+    if (imageFile) {
+        let formData = new FormData();
+        let imageReader = new FileReader();
+        let imageNode = document.getElementById('imageItem' + id);
+        formData.append("image", imageFile);
+        axios.post('/api/item/' + id + '/image/update', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        }).then((response) => {
+            imageReader.onloadend = function () {
+                imageNode.src = imageReader.result
+            }
+            imageReader.readAsDataURL(imageFile)
+        })
+    }
+
+    axios.post('/api/item/update', {
+            'id': id,
+            'title': title,
+            'description': description,
+            'tags': tagsToSave,
+        })
         .then((response) => {
             titleNode.innerText = title
             titleNode.innerHTML += tagsTitles
             descriptionNode.innerText = description
-            console.log(response);
         })
         .catch((error) => {
             console.log(error);
