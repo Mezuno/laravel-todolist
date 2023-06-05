@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\ListItemController;
+use App\Http\Controllers\TodoListController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,8 +20,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('check', [\App\Http\Controllers\ListItemController::class, 'check']);
-Route::post('uncheck', [\App\Http\Controllers\ListItemController::class, 'uncheck']);
-Route::post('item/update', [\App\Http\Controllers\ListItemController::class, 'update']);
-Route::post('item/{itemId}/image/update', [\App\Http\Controllers\ListItemController::class, 'updateImage']);
-Route::post('item/delete', [\App\Http\Controllers\ListItemController::class, 'delete']);
+Route::post('check', [ListItemController::class, 'check']);
+Route::post('uncheck', [ListItemController::class, 'uncheck']);
+Route::post('item/update', [ListItemController::class, 'update']);
+Route::post('item/{itemId}/image/update', [ListItemController::class, 'updateImage']);
+Route::post('item/delete', [ListItemController::class, 'delete']);
+Route::post('/todolist/{list}/share/', [TodoListController::class, 'share']);

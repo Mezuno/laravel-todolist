@@ -17,7 +17,7 @@ class TodoListSeeder extends Seeder
     public function run()
     {
         $data = [];
-        $recordCount = 160;
+        $recordCount = 10;
 
         for ($i = 0; $i < $recordCount; $i++) {
             $data[] = [

@@ -16,17 +16,23 @@ return new class extends Migration
 
             $table->foreignId('owner_id')
                 ->index()
-                ->constrained('users');
+                ->constrained('users')
+                ->onDelete('cascade');
 
             $table->foreignId('guest_id')
                 ->index()
-                ->constrained('users');
+                ->constrained('users')
+                ->onDelete('cascade');
 
             $table->foreignId('list_id')
                 ->index()
-                ->constrained('todo_lists');
+                ->constrained('todo_lists')
+                ->onDelete('cascade');
 
-            $table->smallInteger('permission_level')->default(1);
+            $table->foreignId('permission_level')
+                ->index()
+                ->constrained('shared_permission_levels')
+                ->default(0);
 
             $table->timestamps();
         });

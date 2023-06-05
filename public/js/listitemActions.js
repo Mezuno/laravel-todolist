@@ -1,4 +1,25 @@
 
+
+function saveSharedList(id) {
+    let sharingList = document.getElementsByName('sharingList[]')
+
+    let sharingAssocArray = {}
+
+    sharingList.forEach((element) => {
+        sharingAssocArray[element.dataset.userId.toString()] = element.options[element.selectedIndex].value
+    })
+
+    console.log(sharingList);
+    console.log(sharingAssocArray);
+
+    axios.post('/api/todolist/' + id + '/share', {
+        'sharingList': sharingAssocArray
+    })
+        .then((response) => {
+            console.log(response);
+        })
+}
+
 function deleteItem(id) {
     axios.post('/api/item/delete', {'id': id})
         .then((response) => {

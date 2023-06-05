@@ -20,7 +20,8 @@ return new class extends Migration
 
             $table->foreignId('todo_list_id')
                 ->index()
-                ->constrained('todo_lists');
+                ->constrained('todo_lists')
+                ->onDelete('cascade');
 
             $table->softDeletes();
             $table->timestamps();

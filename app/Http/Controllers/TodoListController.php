@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Http\Filters\ListItemFilter;
+use App\Http\Requests\SaveSharedListRequest;
 use App\Http\Requests\StoreTodoListRequest;
 use App\Http\Requests\UpdateTodoListRequest;
 use App\Models\ListItem;
+use App\Models\SharedList;
+use App\Models\SharedPermissionLevel;
 use App\Models\Tag;
 use App\Models\TodoList;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class TodoListController extends Controller
@@ -47,8 +51,35 @@ class TodoListController extends Controller
         }
 
         $listItems = $query->get();
+        $users = User::all();
+        $sharedLists = SharedList::where('owner_id', auth()->user()->id)->where('list_id', $list->id)->get();
+        $permissionLevels = SharedPermissionLevel::all();
 
-        return view('todolist.show', compact('list', 'listItems', 'tags'));
+        return view('todolist.show', compact('list', 'listItems', 'tags', 'users', 'sharedLists', 'permissionLevels'));
+    }
+
+    public function share(SaveSharedListRequest $request, TodoList $list)
+    {
+        $validated = $request->validated();
+
+        foreach ($validated['sharingList'] as $userId => $permissionLevel) {
+            if ((int)$permissionLevel != 0) {
+                SharedList::updateOrCreate([
+                    'owner_id' => $list->owner_id,
+                    'guest_id' => $userId,
+                    'list_id' => $list->id,
+                ], [
+                    'permission_level' => $permissionLevel,
+                ]);
+            } else {
+                SharedList::where('owner_id', $list->owner_id)
+                    ->where('guest_id', $userId)
+                    ->where('list_id', $list->id)
+                    ->delete();
+            }
+        }
+
+        return $validated['sharingList'];
     }
 
     public function create()

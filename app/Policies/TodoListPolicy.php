@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\SharedList;
 use App\Models\TodoList;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -33,9 +34,15 @@ class TodoListPolicy
      */
     public function check(User $user, TodoList $list): bool
     {
-//        dump($user->accessedLists()->where('list_id', $list->id)->get()->first());
         return $list->owner_id === $user->id ||
-            $user->accessedLists()->where('list_id', $list->id)->get()->first()->permission_level === 1;
+            $user->accessedRights()
+                ->where('list_id', $list->id)
+                ->get()->first()
+                ->permission_level === SharedList::CHECK_ACCESS_CODE ||
+            $user->accessedRights()
+                ->where('list_id', $list->id)
+                ->get()->first()
+                ->permission_level === SharedList::EDIT_ACCESS_CODE;
     }
 
     /**
@@ -58,7 +65,11 @@ class TodoListPolicy
      */
     public function update(User $user, TodoList $list): bool
     {
-        return $user->id === $list->owner_id;
+        return $user->id === $list->owner_id ||
+            $user->accessedRights()
+                ->where('list_id', $list->id)
+                ->get()->first()
+                ->permission_level === SharedList::EDIT_ACCESS_CODE;
     }
 
     /**
@@ -69,6 +80,18 @@ class TodoListPolicy
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function delete(User $user, TodoList $list): bool
+    {
+        return $user->id === $list->owner_id;
+    }
+
+    /**
+     * Determine whether the user can share the model.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\TodoList  $list
+     * @return \Illuminate\Auth\Access\Response|bool
+     */
+    public function share(User $user, TodoList $list): bool
     {
         return $user->id === $list->owner_id;
     }

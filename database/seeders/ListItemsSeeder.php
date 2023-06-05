@@ -18,7 +18,7 @@ class ListItemsSeeder extends Seeder
     public function run()
     {
         $data = [];
-        $recordCount = 1280;
+        $recordCount = 80;
 
         $files_preview_image = Storage::files('/public/images/list-items/');
 
@@ -27,7 +27,7 @@ class ListItemsSeeder extends Seeder
                 'title' => Str::title(fake()->word()),
                 'description' => fake()->text(70),
                 'checked' => rand(0, 1),
-//                'preview_image' => mb_substr($files_preview_image[array_rand($files_preview_image, 1)], 7),
+                'preview_image' => mb_substr($files_preview_image[array_rand($files_preview_image, 1)], 7),
                 'todo_list_id' => TodoList::get('id')->random()->id,
             ];
         }

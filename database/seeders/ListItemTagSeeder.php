@@ -17,7 +17,7 @@ class ListItemTagSeeder extends Seeder
     public function run()
     {
         $data = [];
-        $recordCount = 1280;
+        $recordCount = 80;
 
         for ($i = 0; $i < $recordCount; $i++) {
             $data[] = [

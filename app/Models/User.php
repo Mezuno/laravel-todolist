@@ -53,8 +53,8 @@ class User extends Authenticatable
         return $this->belongsToMany(TodoList::class, 'shared_lists', 'guest_id', 'list_id');
     }
 
-//    public function accessedLists()
-//    {
-//        return $this->hasMany(SharedList::class, 'guest_id', 'id');
-//    }
+    public function accessedRights()
+    {
+        return $this->hasMany(SharedList::class, 'guest_id', 'id');
+    }
 }

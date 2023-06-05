@@ -54,12 +54,76 @@
                         </a>
 
                         <div class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="dropdownMenu">
-                            <a href="{{ route('list.edit', ['list' => $list]) }}" class="btn btn-sm btn-primary"><i class="fas fa-pen"></i></a>
-                            <form action="{{ route('list.delete', ['list' => $list]) }}" method="post" class="d-inline-block">
-                                @csrf
-                                @method('delete')
-                                <button class="btn btn-sm btn-danger ms-2"><i class="fas fa-trash"></i></button>
-                            </form>
+                            @can('share', [$list])
+                                <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#modalSharing">
+                                    <i class="fas fa-share-square"></i></button>
+                            @endcan
+                            @can('update', [$list])
+                                <a href="{{ route('list.edit', ['list' => $list]) }}" class="btn btn-sm btn-primary ms-1">
+                                    <i class="fas fa-pen"></i></a>
+                            @endcan
+                            @can('delete', [$list])
+                                <form action="{{ route('list.delete', ['list' => $list]) }}" method="post" class="d-inline-block">
+                                    @csrf
+                                    @method('delete')
+                                    <button class="btn btn-sm btn-danger ms-1"><i class="fas fa-trash"></i></button>
+                                </form>
+                            @endcan
+                        </div>
+
+                        <div class="modal fade" id="modalSharing" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">Поделиться списком</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+
+                                        <form action="" id="shareForm">
+                                            @foreach($users as $user)
+                                                @if($user->id != auth()->user()->id)
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    {{ $user->name }}
+
+                                                    <select name="sharingList[]" class="form-select-sm sharingList" data-user-id="{{ $user->id }}" style="">
+
+                                                        {{ $sharedList = $sharedLists->first(function($list) use ($user) {
+                                                            return $list->guest_id == $user->id;
+                                                        }) }}
+
+                                                        @if($sharedList)
+                                                            @foreach($permissionLevels as $permissionLevel)
+                                                                @if($permissionLevel->id === $sharedList->permission_level)
+                                                                    <option selected
+                                                                            value="{{ $sharedList->permission_level }}">
+                                                                        {{ $permissionLevel->title }}
+                                                                    </option>
+                                                                @else
+                                                                    <option value="{{ $permissionLevel->id }}">{{ $permissionLevel->title }}</option>
+                                                                @endif
+                                                            @endforeach
+                                                        @else
+                                                            <option value="0" selected>Нет доступа</option>
+                                                            @foreach($permissionLevels as $permissionLevel)
+                                                                <option value="{{ $permissionLevel->id }}">{{ $permissionLevel->title }}</option>
+                                                            @endforeach
+                                                        @endif
+                                                    </select>
+                                                </div>
+                                                @endif
+                                            @endforeach
+                                        </form>
+
+                                    </div>
+                                    <div class="modal-footer d-flex justify-content-between">
+                                        <div>
+                                            <button type="button" class="btn btn-secondary mx-2" data-bs-dismiss="modal">Закрыть</button>
+                                            <button type="submit" class="btn btn-primary" data-bs-dismiss="modal" onclick="saveSharedList({{ $list->id }})">Сохранить</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                     </div>
@@ -75,13 +139,13 @@
                             justify-content-between align-items-center hoverDiv" id="item{{ $item->id }}">
 
                                 <div class="d-flex align-items-center">
-{{--                                    <div class="d-inline-block ms-2" style="width: 40px; height: 40px;">--}}
+                                    <div class="d-inline-block ms-2" style="width: 40px; height: 40px;">
 
-{{--                                        <a href="{{ URL::asset('/storage/' . $item->preview_image) }}" target="_blank">--}}
-{{--                                            <img src="{{ URL::asset('/storage/' . $item->preview_image) }}" alt="" class="w-100 h-100" id="imageItem{{ $item->id }}">--}}
-{{--                                        </a>--}}
+                                        <a href="{{ URL::asset('/storage/' . $item->preview_image) }}" target="_blank">
+                                            <img src="{{ URL::asset('/storage/' . $item->preview_image) }}" alt="" class="w-100 h-100" id="imageItem{{ $item->id }}">
+                                        </a>
 
-{{--                                    </div>--}}
+                                    </div>
                                     <div class="mx-2">
                                         <p class="m-0 p-0" id="titleItem{{ $item->id }}">{{ $item->title }}
                                             @foreach($item->tags as $tag)
@@ -123,12 +187,12 @@
                                                 <input type="text" id="titleInputItem{{ $item->id }}" class="form-control mb-2" value="{{ $item->title }}">
                                                 <input type="text" id="descriptionInputItem{{ $item->id }}" class="form-control mb-2" value="{{ $item->description }}">
 
-{{--                                                <p class="m-0">Изображение</p>--}}
-{{--                                                <form enctype="multipart/form-data" method="post" action="" class="d-flex flex-column">--}}
-{{--                                                    @csrf--}}
-{{--                                                    @method('patch')--}}
-{{--                                                    <input class="mb-2" type="file" name="inputImageItem{{ $item->id }}" accept=".jpg, .jpeg, .png" id="imageInput{{ $item->id }}">--}}
-{{--                                                </form>--}}
+                                                <p class="m-0">Изображение</p>
+                                                <form enctype="multipart/form-data" method="post" action="" class="d-flex flex-column">
+                                                    @csrf
+                                                    @method('patch')
+                                                    <input class="mb-2" type="file" name="inputImageItem{{ $item->id }}" accept=".jpg, .jpeg, .png" id="imageInput{{ $item->id }}">
+                                                </form>
 
                                                 <div class="form-group mt-2">
                                                     <select name="tags[]" class="tags" id="tagsItem{{ $item->id }}" multiple="multiple" data-placeholder="Добавить тег" style="height: 300px; width: 100%;">
@@ -165,21 +229,22 @@
 
                         @endforeach
 
-
-                        <div class="p-1 border-opacity-25 border-secondary border mt-2 p-2 rounded-3 d-flex flex-column" id="newItem">
-                            @if ($errors->has('title'))
-                                <div class="alert alert-danger w-100">
-                                    @foreach($errors->get('title') as $message){{$message}}<br>@endforeach
-                                </div>
-                            @endif
-                            <form action="{{ route('item.store', ['list' => $list]) }}" method="post">
-                                @csrf
-                                @method('post')
-                                <input type="text" class="form-control mb-2" name="title" placeholder="Название">
-                                <textarea type="text" class="form-control mb-2" name="description" placeholder="Описание"></textarea>
-                                <button class="btn btn-success">Добавить</button>
-                            </form>
-                        </div>
+                        @can('update', [$list])
+                            <div class="p-1 border-opacity-25 border-secondary border mt-2 p-2 rounded-3 d-flex flex-column" id="newItem">
+                                @if ($errors->has('title'))
+                                    <div class="alert alert-danger w-100">
+                                        @foreach($errors->get('title') as $message){{$message}}<br>@endforeach
+                                    </div>
+                                @endif
+                                <form action="{{ route('item.store', ['list' => $list]) }}" method="post">
+                                    @csrf
+                                    @method('post')
+                                    <input type="text" class="form-control mb-2" name="title" placeholder="Название">
+                                    <textarea type="text" class="form-control mb-2" name="description" placeholder="Описание"></textarea>
+                                    <button class="btn btn-success">Добавить</button>
+                                </form>
+                            </div>
+                        @endcan
                     </div>
 
                 </div>

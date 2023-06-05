@@ -17,7 +17,7 @@ class TagSeeder extends Seeder
     public function run()
     {
         $data = [];
-        $recordCount = 100;
+        $recordCount = 10;
 
         for ($i = 0; $i < $recordCount; $i++) {
             $data[] = [
