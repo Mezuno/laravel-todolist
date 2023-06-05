@@ -47,16 +47,11 @@ class ListItemController extends Controller
         return $result;
     }
 
-    public function store(StoreItemRequest $request)
+    public function store(StoreItemRequest $request, TodoList $list)
     {
-        $title = $request->input('title');
-        $description = $request->input('description');
-        $listId = $request->input('todo_list_id');
-
-        $result = ListItem::create(['title' => $title, 'description' => $description, 'todo_list_id' => $listId]);
-
-        $list = TodoList::find($listId);
-
+        $validated = $request->validated();
+        $validated['todo_list_id'] = $list->id;
+        ListItem::create($validated);
         return redirect()->route('list.show', ['list' => $list]);
     }
 

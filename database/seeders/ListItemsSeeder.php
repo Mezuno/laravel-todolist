@@ -27,7 +27,7 @@ class ListItemsSeeder extends Seeder
                 'title' => Str::title(fake()->word()),
                 'description' => fake()->text(70),
                 'checked' => rand(0, 1),
-                'preview_image' => mb_substr($files_preview_image[array_rand($files_preview_image, 1)], 7),
+//                'preview_image' => mb_substr($files_preview_image[array_rand($files_preview_image, 1)], 7),
                 'todo_list_id' => TodoList::get('id')->random()->id,
             ];
         }

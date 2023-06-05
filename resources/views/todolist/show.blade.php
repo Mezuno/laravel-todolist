@@ -10,6 +10,12 @@
                     Назад
                 </a>
 
+                @if($list->owner_id !== auth()->user()->id)
+                    <div class="alert alert-info p-2 py-1">
+                        Список пользователя {{ $list->owner->name }}. Вас пригласили.
+                    </div>
+                @endif
+
                 <div class="mb-2">
                     <h5>Фильтр по тегам</h5>
                     @foreach($tags as $tag)
@@ -69,13 +75,13 @@
                             justify-content-between align-items-center hoverDiv" id="item{{ $item->id }}">
 
                                 <div class="d-flex align-items-center">
-                                    <div class="d-inline-block ms-2" style="width: 40px; height: 40px;">
+{{--                                    <div class="d-inline-block ms-2" style="width: 40px; height: 40px;">--}}
 
-                                        <a href="{{ URL::asset('/storage/' . $item->preview_image) }}" target="_blank">
-                                            <img src="{{ URL::asset('/storage/' . $item->preview_image) }}" alt="" class="w-100 h-100" id="imageItem{{ $item->id }}">
-                                        </a>
+{{--                                        <a href="{{ URL::asset('/storage/' . $item->preview_image) }}" target="_blank">--}}
+{{--                                            <img src="{{ URL::asset('/storage/' . $item->preview_image) }}" alt="" class="w-100 h-100" id="imageItem{{ $item->id }}">--}}
+{{--                                        </a>--}}
 
-                                    </div>
+{{--                                    </div>--}}
                                     <div class="mx-2">
                                         <p class="m-0 p-0" id="titleItem{{ $item->id }}">{{ $item->title }}
                                             @foreach($item->tags as $tag)
@@ -88,14 +94,18 @@
                                 </div>
 
                                 <div class="mx-2">
-                                    <a type="button" class="text-secondary mx-3" data-bs-toggle="modal" data-bs-target="#modalItem{{ $item->id }}">
-                                        <i class="fas fa-pen"></i>
-                                    </a>
-                                    @if($item->checked)
-                                        <button onclick="checkItem({{ $item->id }})" id="checkButton{{ $item->id }}" class="rounded-3 btn-sm btn btn-dark"><i class="fas fa-check"></i></button>
-                                    @else
-                                        <button onclick="checkItem({{ $item->id }})" id="checkButton{{ $item->id }}" class="rounded-3 btn-sm btn btn-outline-dark text-white"><i class="fas fa-check"></i></button>
-                                    @endif
+                                    @can('update', [$list])
+                                        <a type="button" class="text-secondary mx-3" data-bs-toggle="modal" data-bs-target="#modalItem{{ $item->id }}">
+                                            <i class="fas fa-pen"></i>
+                                        </a>
+                                    @endcan
+                                    @can('check', [$list])
+                                        @if($item->checked)
+                                            <button onclick="checkItem({{ $item->id }})" id="checkButton{{ $item->id }}" class="rounded-3 btn-sm btn btn-dark"><i class="fas fa-check"></i></button>
+                                        @else
+                                            <button onclick="checkItem({{ $item->id }})" id="checkButton{{ $item->id }}" class="rounded-3 btn-sm btn btn-outline-dark text-white"><i class="fas fa-check"></i></button>
+                                        @endif
+                                    @endcan
                                 </div>
                             </div>
 
@@ -113,12 +123,12 @@
                                                 <input type="text" id="titleInputItem{{ $item->id }}" class="form-control mb-2" value="{{ $item->title }}">
                                                 <input type="text" id="descriptionInputItem{{ $item->id }}" class="form-control mb-2" value="{{ $item->description }}">
 
-                                                <p class="m-0">Изображение</p>
-                                                <form enctype="multipart/form-data" method="post" action="" class="d-flex flex-column">
-                                                    @csrf
-                                                    @method('patch')
-                                                    <input class="mb-2" type="file" name="inputImageItem{{ $item->id }}" accept=".jpg, .jpeg, .png" id="imageInput{{ $item->id }}">
-                                                </form>
+{{--                                                <p class="m-0">Изображение</p>--}}
+{{--                                                <form enctype="multipart/form-data" method="post" action="" class="d-flex flex-column">--}}
+{{--                                                    @csrf--}}
+{{--                                                    @method('patch')--}}
+{{--                                                    <input class="mb-2" type="file" name="inputImageItem{{ $item->id }}" accept=".jpg, .jpeg, .png" id="imageInput{{ $item->id }}">--}}
+{{--                                                </form>--}}
 
                                                 <div class="form-group mt-2">
                                                     <select name="tags[]" class="tags" id="tagsItem{{ $item->id }}" multiple="multiple" data-placeholder="Добавить тег" style="height: 300px; width: 100%;">
@@ -155,13 +165,18 @@
 
                         @endforeach
 
+
                         <div class="p-1 border-opacity-25 border-secondary border mt-2 p-2 rounded-3 d-flex flex-column" id="newItem">
-                            <form action="{{ route('item.store') }}" method="post">
+                            @if ($errors->has('title'))
+                                <div class="alert alert-danger w-100">
+                                    @foreach($errors->get('title') as $message){{$message}}<br>@endforeach
+                                </div>
+                            @endif
+                            <form action="{{ route('item.store', ['list' => $list]) }}" method="post">
                                 @csrf
                                 @method('post')
                                 <input type="text" class="form-control mb-2" name="title" placeholder="Название">
                                 <textarea type="text" class="form-control mb-2" name="description" placeholder="Описание"></textarea>
-                                <input type="text" value="{{ $list->id }}" name="todo_list_id" hidden>
                                 <button class="btn btn-success">Добавить</button>
                             </form>
                         </div>

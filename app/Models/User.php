@@ -42,4 +42,19 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function sharedLists()
+    {
+        return $this->hasMany(SharedList::class, 'owner_id', 'id');
+    }
+
+    public function accessedLists()
+    {
+        return $this->belongsToMany(TodoList::class, 'shared_lists', 'guest_id', 'list_id');
+    }
+
+//    public function accessedLists()
+//    {
+//        return $this->hasMany(SharedList::class, 'guest_id', 'id');
+//    }
 }

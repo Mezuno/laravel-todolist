@@ -31,7 +31,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/{list}/edit', [App\Http\Controllers\TodoListController::class, 'edit'])->name('list.edit');
         Route::patch('/{list}/', [App\Http\Controllers\TodoListController::class, 'update'])->name('list.update');
 
-        Route::post('/item/store', [App\Http\Controllers\ListItemController::class, 'storeItem'])->name('item.store');
+        Route::post('/{list}/', [App\Http\Controllers\ListItemController::class, 'store'])->name('item.store');
 
     });
 

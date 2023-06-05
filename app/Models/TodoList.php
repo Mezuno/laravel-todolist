@@ -23,4 +23,9 @@ class TodoList extends Model
     {
         return $this->hasMany(ListItem::class)->where('checked', '=', true);
     }
+
+    public function owner()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

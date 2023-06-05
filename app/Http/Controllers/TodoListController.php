@@ -17,12 +17,20 @@ class TodoListController extends Controller
         $lists = TodoList::where('owner_id', auth()->user()->id)
             ->withCount('item')
             ->withCount('checkedItem')
+            ->orderByDesc('id')
             ->get();
-        return view('todolist.index', compact('lists'));
+        $accessedLists = auth()->user()
+            ->accessedLists()
+            ->with('owner')
+            ->withCount('item')
+            ->withCount('checkedItem')
+            ->get();
+        return view('todolist.index', compact('lists', 'accessedLists'));
     }
 
     public function show(Request $request, TodoList $list)
     {
+        $this->authorize('view', [$list]);
         $tags = Tag::where('owner_id', auth()->user()->id)->get();
 
         $query = ListItem::query()->where('todo_list_id', $list->id)->with('tags');

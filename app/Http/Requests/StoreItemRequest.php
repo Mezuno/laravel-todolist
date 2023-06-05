@@ -22,9 +22,8 @@ class StoreItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required',
-            'description' => 'required',
-            'todo_list_id' => 'required',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string|max:255',
         ];
     }
 }
