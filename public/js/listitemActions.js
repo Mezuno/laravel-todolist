@@ -1,5 +1,20 @@
+function switchFilterButtonClasses(button) {
+    if (button.classList.contains('alert-danger')) {
+        button.classList.remove('alert-danger')
+        button.classList.add('alert-warning')
+    } else {
+        button.classList.add('alert-danger')
+        button.classList.remove('alert-warning')
+    }
+}
 
-
+function removeImageItem(id, removeButton) {
+    axios.post('/api/item/' + id + '/remove-image')
+        .then(response => {
+            document.getElementById('imageItem' + id).src = '';
+            removeButton.remove()
+        })
+}
 function saveSharedList(id) {
     let sharingList = document.getElementsByName('sharingList[]')
 
@@ -37,7 +52,7 @@ function editItem(id) {
     let tags = document.getElementById('tagsItem'+id)
 
     let tagsToSave = [];
-    let tagsTitles = '';
+    let tagsTitles = ' ';
     let tagsOptions = tags && tags.options;
     let option;
 
@@ -50,7 +65,8 @@ function editItem(id) {
         }
     }
 
-    let imageFile = document.getElementById('imageInput' + id).files[0];
+    let imageInput = document.getElementById('imageInput' + id)
+    let imageFile = imageInput.files[0];
     if (imageFile) {
         let formData = new FormData();
         let imageReader = new FileReader();
@@ -65,6 +81,12 @@ function editItem(id) {
                 imageNode.src = imageReader.result
             }
             imageReader.readAsDataURL(imageFile)
+            let oldRemoveButton = document.getElementById('removeImageButton' + id)
+            if (!oldRemoveButton) {
+                let newButton = '<button type="button" class="btn btn-danger btn-sm" onclick="removeImageItem( ' + id + ', this )" id="removeImageButton' + id + '">Убрать изображение</button>'
+                imageInput.insertAdjacentHTML('afterend', newButton)
+            }
+            imageInput.value = ''
         })
     }
 

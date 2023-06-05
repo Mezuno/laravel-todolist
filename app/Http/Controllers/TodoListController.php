@@ -35,16 +35,16 @@ class TodoListController extends Controller
     public function show(Request $request, TodoList $list)
     {
         $this->authorize('view', [$list]);
-        $tags = Tag::where('owner_id', auth()->user()->id)->get();
 
         $query = ListItem::query()->where('todo_list_id', $list->id)->with('tags');
 
-        if ($request->input('tag')) {
-            $tag = $request->input('tag');
-            $query->whereHas('tags', function ($query) use ($tag) {
-                $query->where('tag_id', '=', $tag);
+        if ($request->input('tags')) {
+            $tags = $request->input('tags');
+            $query->whereHas('tags', function ($query) use ($tags) {
+                $query->whereIn('tag_id', $tags);
             });
         }
+
         if ($request->input('search')) {
             $search = '%'. $request->input('search') . '%';
             $query->where('title', 'like', $search);
@@ -54,6 +54,7 @@ class TodoListController extends Controller
         $users = User::all();
         $sharedLists = SharedList::where('owner_id', auth()->user()->id)->where('list_id', $list->id)->get();
         $permissionLevels = SharedPermissionLevel::all();
+        $tags = Tag::where('owner_id', auth()->user()->id)->get();
 
         return view('todolist.show', compact('list', 'listItems', 'tags', 'users', 'sharedLists', 'permissionLevels'));
     }

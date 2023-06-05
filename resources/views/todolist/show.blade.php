@@ -18,14 +18,22 @@
 
                 <div class="mb-2">
                     <h5>Фильтр по тегам</h5>
-                    @foreach($tags as $tag)
-                        <form action="{{ route('list.show', ['list' => $list]) }}" class="d-inline-block">
-                            <input type="text" value="{{ $tag->id }}" name="tag" hidden>
-                            <button class="alert p-0 px-1 me-2 @if($tag->id == app('request')->input('tag')) alert-danger @else alert-warning @endif">{{ $tag->title }}</button>
-                        </form>
-                    @endforeach
+                    <form action="{{ route('list.show', ['list' => $list]) }}" class="d-inline-block">
+                        @foreach($tags as $tag)
+
+                            <input id="tagInput{{ $tag->id }}" type="checkbox" value="{{ $tag->id }}" name="tags[]" hidden
+                            @if(request()->input('tags') && in_array($tag->id, request()->input('tags'))) checked @endif>
+
+                            <label for="tagInput{{ $tag->id }}" class="alert p-0 px-1 me-2
+                                @if(request()->input('tags') && in_array($tag->id, request()->input('tags')))
+                                alert-danger @else alert-warning @endif" style="cursor: pointer"
+                                   onclick="switchFilterButtonClasses(this)">{{ $tag->title }}</label>
+
+                        @endforeach
+                        <button class="btn btn-dark btn-sm">Применить</button>
+                    </form>
                     @if(app('request')->input('tag'))
-                        <form action="{{ route('list.show', ['list' => $list]) }}" class="d-inline-block">
+                        <form action="{{ route('list.show', ['list' => $list]) }}" class="d-inline-block ms-2">
                             <button class="alert alert-secondary p-0 px-1"><i class="fas fa-times"></i></button>
                         </form>
                     @endif
@@ -188,11 +196,11 @@
                                                 <input type="text" id="descriptionInputItem{{ $item->id }}" class="form-control mb-2" value="{{ $item->description }}">
 
                                                 <p class="m-0">Изображение</p>
-                                                <form enctype="multipart/form-data" method="post" action="" class="d-flex flex-column">
-                                                    @csrf
-                                                    @method('patch')
-                                                    <input class="mb-2" type="file" name="inputImageItem{{ $item->id }}" accept=".jpg, .jpeg, .png" id="imageInput{{ $item->id }}">
-                                                </form>
+                                                <input class="mb-2" type="file" name="inputImageItem{{ $item->id }}" accept=".jpg, .jpeg, .png" id="imageInput{{ $item->id }}">
+
+                                                @if($item->preview_image)
+                                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeImageItem({{ $item->id }}, this)" id="removeImageButton{{ $item->id }}">Убрать изображение</button>
+                                                @endif
 
                                                 <div class="form-group mt-2">
                                                     <select name="tags[]" class="tags" id="tagsItem{{ $item->id }}" multiple="multiple" data-placeholder="Добавить тег" style="height: 300px; width: 100%;">

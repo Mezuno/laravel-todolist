@@ -25,4 +25,5 @@ Route::post('uncheck', [ListItemController::class, 'uncheck']);
 Route::post('item/update', [ListItemController::class, 'update']);
 Route::post('item/{itemId}/image/update', [ListItemController::class, 'updateImage']);
 Route::post('item/delete', [ListItemController::class, 'delete']);
+Route::post('/item/{item}/remove-image/', [ListItemController::class, 'removeImage']);
 Route::post('/todolist/{list}/share/', [TodoListController::class, 'share']);

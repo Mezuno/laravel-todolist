@@ -75,10 +75,18 @@ class ListItemController extends Controller
         $img = Image::make($validated['image']);
         $img->save(public_path($filename));
 
-        $list = ListItem::where('id', $itemId)->get()->first();
-        $list->preview_image = $filenameToDB;
-        $list->save();
+        $item = ListItem::where('id', $itemId)->get()->first();
+        $item->preview_image = $filenameToDB;
+        $item->save();
 
         return $validated['image'];
+    }
+
+    public function removeImage(ListItem $item)
+    {
+        $item->preview_image = null;
+        $item->save();
+        
+        return 1;
     }
 }
