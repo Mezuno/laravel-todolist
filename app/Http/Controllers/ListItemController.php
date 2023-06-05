@@ -68,7 +68,7 @@ class ListItemController extends Controller
     {
         $validated = $request->validated();
 
-        $filename = 'storage\\images\\list-items\\' . $itemId . '.' . $validated['image']->getClientOriginalExtension();
+        $filename = 'storage/images/list-items/' . $itemId . '.' . $validated['image']->getClientOriginalExtension();
         $filenameToDB = 'images/list-items/' . $itemId . '.' . $validated['image']->getClientOriginalExtension();
 
         ini_set('memory_limit','256M');
