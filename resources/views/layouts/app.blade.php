@@ -91,6 +91,6 @@
 
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
-    <script type="text/javascript" src="/js/listitemActions.js"></script>
+    <script type="text/javascript" src="/js/listitemActions.js?t={{ now()->timestamp }}"></script>
 </body>
 </html>
