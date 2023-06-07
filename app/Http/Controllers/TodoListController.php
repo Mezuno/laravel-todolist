@@ -51,9 +51,12 @@ class TodoListController extends Controller
         }
 
         $listItems = $query->get();
+
         $users = User::all();
+
         $sharedLists = SharedList::where('owner_id', auth()->user()->id)->where('list_id', $list->id)->get();
         $permissionLevels = SharedPermissionLevel::all();
+
         $tags = Tag::where('owner_id', auth()->user()->id)->get();
 
         return view('todolist.show', compact('list', 'listItems', 'tags', 'users', 'sharedLists', 'permissionLevels'));
@@ -61,6 +64,9 @@ class TodoListController extends Controller
 
     public function share(SaveSharedListRequest $request, TodoList $list)
     {
+        // Для авторизации по api нужен sanctum...
+        // $this->authorize('share', [$list]);
+
         $validated = $request->validated();
 
         foreach ($validated['sharingList'] as $userId => $permissionLevel) {
@@ -101,18 +107,21 @@ class TodoListController extends Controller
 
     public function edit(TodoList $list)
     {
+        $this->authorize('update', [$list]);
         return view('todolist.edit', compact('list'));
     }
 
     public function update(UpdateTodoListRequest $request, TodoList $list)
     {
+        $this->authorize('update', [$list]);
         $validated = $request->validated();
-        TodoList::find($list->id)->update(['title' => $validated['title'], 'description' => $validated['description']]);
+        $list->update($validated);
         return redirect()->route('list.show', ['list' => $list]);
     }
 
     public function delete(TodoList $list)
     {
+        $this->authorize('delete', [$list]);
         $list->delete();
         return redirect()->route('list.index')->with(['success' => 'Список успешно удален.']);
     }

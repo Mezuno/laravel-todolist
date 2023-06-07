@@ -9,7 +9,7 @@ function switchFilterButtonClasses(button) {
 }
 
 function removeImageItem(id, removeButton) {
-    axios.post('/api/item/' + id + '/remove-image')
+    axios.post('/api/item/' + id + '/image/remove')
         .then(response => {
             document.getElementById('imageItem' + id).src = '';
             removeButton.remove()
@@ -36,7 +36,7 @@ function saveSharedList(id) {
 }
 
 function deleteItem(id) {
-    axios.post('/api/item/delete', {'id': id})
+    axios.post('/api/item/' + id + '/delete')
         .then((response) => {
             document.getElementById('item'+id).remove()
         })
@@ -90,8 +90,7 @@ function editItem(id) {
         })
     }
 
-    axios.post('/api/item/update', {
-            'id': id,
+    axios.post('/api/item/' + id + '/update', {
             'title': title,
             'description': description,
             'tags': tagsToSave,
@@ -112,13 +111,13 @@ function checkItem(id) {
     switchCheckButtonClasses(id, isChecked)
 
     if (isChecked) {
-        axios.post('/api/uncheck', {'id': id})
+        axios.post('/api/item/' + id + '/uncheck')
             .catch((error) => {
                 console.log(error);
                 switchCheckButtonClasses(id, isChecked)
             })
     } else {
-        axios.post('/api/check', {'id': id})
+        axios.post('/api/item/' + id + '/check')
             .catch((error) => {
                 console.log(error);
                 switchCheckButtonClasses(id, isChecked)

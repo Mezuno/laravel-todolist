@@ -2,52 +2,37 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreItemRequest;
+use App\Http\Requests\StoreListItemRequest;
 use App\Http\Requests\UpdateListItemImageRequest;
+use App\Http\Requests\UpdateListItemRequest;
 use App\Models\ListItem;
 use App\Models\TodoList;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 
 class ListItemController extends Controller
 {
-
-    public function check(Request $request)
+    public function check(ListItem $item)
     {
-        $id = $request->input('id');
-
-        $result = ListItem::where('id', $id)->update(['checked' => true]);
-
-        return $result;
+        return $item->update(['checked' => true]);
     }
 
-    public function uncheck(Request $request)
+    public function uncheck(ListItem $item)
     {
-        $id = $request->input('id');
-
-        $result = ListItem::where('id', $id)->update(['checked' => false]);
-
-        return $result;
+        return $item->update(['checked' => false]);
     }
 
-    public function update(Request $request)
+    public function update(UpdateListItemRequest $request, ListItem $item)
     {
-        $id = $request->input('id');
-        $title = $request->input('title');
-        $description = $request->input('description');
-        $tags = $request->input('tags');
+        $validated = $request->validated();
 
-        $result = ListItem::where('id', $id)->update(['title' => $title, 'description' => $description]);
+        $item->tags()->sync($validated['tags'] ?? []);
+        unset($validated['tags']);
 
-        $list = ListItem::where('id', $id)->get()->first();
-
-        $list->tags()->sync($tags ?? []);
-
-        return $result;
+        return $item->update($validated);
     }
 
-    public function store(StoreItemRequest $request, TodoList $list)
+    public function store(StoreListItemRequest $request, TodoList $list)
     {
         $validated = $request->validated();
         $validated['todo_list_id'] = $list->id;
@@ -55,27 +40,22 @@ class ListItemController extends Controller
         return redirect()->route('list.show', ['list' => $list]);
     }
 
-    public function delete(Request $request)
+    public function delete(ListItem $item)
     {
-        $id = $request->input('id');
-
-        $result = ListItem::where('id', $id)->delete();
-
-        return $result;
+        return $item->delete();
     }
 
-    public function updateImage(UpdateListItemImageRequest $request, int $itemId)
+    public function updateImage(UpdateListItemImageRequest $request, ListItem $item)
     {
         $validated = $request->validated();
 
-        $filename = 'storage/images/list-items/' . $itemId . '.' . $validated['image']->getClientOriginalExtension();
-        $filenameToDB = 'images/list-items/' . $itemId . '.' . $validated['image']->getClientOriginalExtension();
+        $filename = 'storage/images/list-items/' . $item->id . '.' . $validated['image']->getClientOriginalExtension();
+        $filenameToDB = 'images/list-items/' . $item->id . '.' . $validated['image']->getClientOriginalExtension();
 
         ini_set('memory_limit','256M');
         $img = Image::make($validated['image']);
         $img->save(public_path($filename));
 
-        $item = ListItem::where('id', $itemId)->get()->first();
         $item->preview_image = $filenameToDB;
         $item->save();
 
@@ -84,9 +64,9 @@ class ListItemController extends Controller
 
     public function removeImage(ListItem $item)
     {
-        $item->preview_image = null;
-        $item->save();
-        
-        return 1;
+        if (Storage::delete('/public/' . $item->preview_image)) {
+            $item->preview_image = null;
+        }
+        return $item->save();
     }
 }

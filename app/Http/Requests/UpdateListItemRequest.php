@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateTodoListRequest extends FormRequest
+class UpdateListItemRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,6 +24,7 @@ class UpdateTodoListRequest extends FormRequest
         return [
             'title' => 'required|string|max:70',
             'description' => 'nullable|string|max:255',
+            'tags' => 'nullable|array',
         ];
     }
 }

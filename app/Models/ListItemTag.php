@@ -12,7 +12,7 @@ class ListItemTag extends Model
     protected $table = 'list_item_tag';
     protected $guarded = false;
 
-    public function tag()
+    public function tag(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Tag::class, 'tag_id', 'id');
     }
